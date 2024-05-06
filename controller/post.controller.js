@@ -59,6 +59,8 @@ const deletePost = (req, res) => {
 };
 
 const updatePost = (req, res) => {
+  console.log(req.body);
+
   const { db } = req.app;
   const { postId } = req.params;
 
@@ -67,11 +69,17 @@ const updatePost = (req, res) => {
   if (post == null || post == undefined || !post) {
     return res.status(404).send({ message: "No posts found" });
   }
+  const modifiedPost = {
+    // eslint-disable-next-line node/no-unsupported-features/es-syntax
+    ...req.body,
+    postType: req?.file?.filename ? "image" : "text",
 
+    image: req?.file?.filename ? `uploads/posts/${req?.file?.filename}` : null,
+  };
   const updatedPost = db
     .get("posts")
     // eslint-disable-next-line node/no-unsupported-features/es-syntax
-    .updateById(postId, { ...req.body })
+    .updateById(postId, modifiedPost)
     .write();
 
   return res.status(200).send(updatedPost);
